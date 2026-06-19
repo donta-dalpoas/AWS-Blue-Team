@@ -1,0 +1,35 @@
+name: "🚀 ATAP Epic"
+description: "Launch a new core initiative for the Agent Team Platform."
+title: "[ATAP-EPIC]: "
+labels: ["atap:epic"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 📌 Creating a New ATAP Epic
+        Ensure this Epic represents a high-level initiative that will be broken down into cross-repository development tasks.
+
+  - type: textarea
+    id: epic-description
+    attributes:
+      label: "📋 Epic Description"
+      description: "What is the core purpose of this platform capability? What value does it drive?"
+      placeholder: "As an ANR engineer/user, I want to [action] so that [outcome]..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: "🎯 Acceptance Criteria / Definition of Done"
+      description: "What explicit requirements must be fully checked off for this Epic to be considered complete?"
+      value: |
+        ### Business & Functional Requirements
+        - [ ] Criterion 1
+        
+        ### Technical & Cross-Repo Quality Constraints
+        - [ ] Code integrated and reviewed across dependent repos
+        - [ ] Automated end-to-end integration tests passing
+        - [ ] API documentation updated in central hub
+    validations:
+      required: true
