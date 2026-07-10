@@ -15,8 +15,8 @@ active_regions   = ["us-east-1", "us-west-2"]
 github_org  = "donta-dalpoas"
 github_repo = "AWS-Blue-Team"
 
-# Networking
-create_vpc = true
+# Networking - disabled (AWS Academy VPC limit reached)
+create_vpc = false
 vpc_cidr   = "10.0.0.0/16"
 
 # OpenSearch (dev sizing)

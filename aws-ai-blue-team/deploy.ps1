@@ -1,11 +1,9 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
     Terraform wrapper for AWS AI Blue Team
-
 .DESCRIPTION
     Manages Terraform operations: bootstrap, init, validate, fmt, plan, apply, destroy
-
 .EXAMPLE
     .\deploy.ps1 bootstrap
     .\deploy.ps1 plan
@@ -33,7 +31,7 @@ $ProjectName = "aws-ai-blue-team"
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $TfDir = Join-Path $ScriptDir "terraform"
 $BootstrapDir = Join-Path $TfDir "bootstrap"
-$EnvDir = Join-Path $TfDir "environments" $Environment
+$EnvDir = Join-Path (Join-Path $TfDir "environments") $Environment
 $PlanFile = Join-Path $TfDir "$Environment.tfplan"
 $BackendConfig = Join-Path $EnvDir "backend.hcl"
 $TfVarsFile = Join-Path $EnvDir "terraform.tfvars"
@@ -43,23 +41,41 @@ $TfVarsFile = Join-Path $EnvDir "terraform.tfvars"
 # -----------------------------------------------------------------------------
 function Write-Banner {
     Write-Host ""
-    Write-Host "  ╔══════════════════════════════════════════════╗" -ForegroundColor Cyan
-    Write-Host "  ║       AWS AI Blue Team - Deploy Tool        ║" -ForegroundColor Cyan
-    Write-Host "  ╚══════════════════════════════════════════════╝" -ForegroundColor Cyan
+    Write-Host "  AWS AI Blue Team - Deploy Tool" -ForegroundColor Cyan
+    Write-Host "  ==============================" -ForegroundColor Cyan
     Write-Host ""
 }
 
-function Write-Step  { param([string]$Msg) Write-Host "[STEP] " -ForegroundColor Cyan -NoNewline; Write-Host $Msg }
-function Write-Info  { param([string]$Msg) Write-Host "[INFO] " -ForegroundColor Green -NoNewline; Write-Host $Msg }
-function Write-Warn  { param([string]$Msg) Write-Host "[WARN] " -ForegroundColor Yellow -NoNewline; Write-Host $Msg }
-function Write-Err   { param([string]$Msg) Write-Host "[ERROR] " -ForegroundColor Red -NoNewline; Write-Host $Msg }
+function Write-Step {
+    param([string]$Msg)
+    Write-Host 'STEP: ' -ForegroundColor Cyan -NoNewline
+    Write-Host $Msg
+}
+
+function Write-Info {
+    param([string]$Msg)
+    Write-Host 'INFO: ' -ForegroundColor Green -NoNewline
+    Write-Host $Msg
+}
+
+function Write-Warn {
+    param([string]$Msg)
+    Write-Host 'WARN: ' -ForegroundColor Yellow -NoNewline
+    Write-Host $Msg
+}
+
+function Write-Err {
+    param([string]$Msg)
+    Write-Host 'ERROR: ' -ForegroundColor Red -NoNewline
+    Write-Host $Msg
+}
 
 function Show-Help {
     Write-Banner
-    Write-Host "Usage: .\deploy.ps1 [-Environment dev|prod] [-Region us-east-1] <Command>"
+    Write-Host "Usage: .\deploy.ps1 [-Environment dev|prod] [-Region us-east-1] Command"
     Write-Host ""
     Write-Host "Commands:"
-    Write-Host "  bootstrap   One-time: create state backend + CI/CD roles (local state)"
+    Write-Host "  bootstrap   One-time setup: create state backend and CI/CD roles"
     Write-Host "  init        Initialize Terraform with remote backend"
     Write-Host "  validate    Run fmt check, validate, and tflint"
     Write-Host "  fmt         Auto-format all .tf files"
@@ -69,12 +85,11 @@ function Show-Help {
     Write-Host "  help        Show this help message"
     Write-Host ""
     Write-Host "Examples:"
-    Write-Host "  .\deploy.ps1 bootstrap                    # First-time setup"
-    Write-Host "  .\deploy.ps1 init                         # Initialize for dev"
-    Write-Host "  .\deploy.ps1 plan                         # Plan dev changes"
-    Write-Host "  .\deploy.ps1 apply                        # Apply dev changes"
-    Write-Host "  .\deploy.ps1 -Environment prod plan       # Plan prod changes"
-    Write-Host "  .\deploy.ps1 -Environment prod apply      # Apply prod changes"
+    Write-Host "  .\deploy.ps1 bootstrap"
+    Write-Host "  .\deploy.ps1 init"
+    Write-Host "  .\deploy.ps1 plan"
+    Write-Host "  .\deploy.ps1 apply"
+    Write-Host "  .\deploy.ps1 -Environment prod plan"
     Write-Host ""
 }
 
@@ -84,19 +99,24 @@ function Test-Prerequisites {
         Write-Err "Terraform is not installed. Install from https://developer.hashicorp.com/terraform/install"
         exit 1
     }
-    $tfVersion = (terraform version -json 2>$null | ConvertFrom-Json).terraform_version
-    if (-not $tfVersion) { $tfVersion = "unknown" }
-    Write-Info "Terraform v$tfVersion"
+    $tfVersion = terraform version -json 2>$null | ConvertFrom-Json
+    if ($tfVersion) {
+        Write-Info "Terraform v$($tfVersion.terraform_version)"
+    } else {
+        Write-Info "Terraform installed (version unknown)"
+    }
 
-    # Check AWS credentials
-    $hasProfile = $env:AWS_PROFILE
-    $hasAccessKey = $env:AWS_ACCESS_KEY_ID
-    $hasRoleArn = $env:AWS_ROLE_ARN
-    if (-not $hasProfile -and -not $hasAccessKey -and -not $hasRoleArn) {
-        Write-Err "No AWS credentials found. Set AWS_PROFILE, AWS_ACCESS_KEY_ID, or AWS_ROLE_ARN."
+    # Check AWS credentials (Terraform reads these env vars directly)
+    if (-not $env:AWS_PROFILE -and -not $env:AWS_ACCESS_KEY_ID -and -not $env:AWS_ROLE_ARN) {
+        Write-Err "No AWS credentials found."
+        Write-Err "Set these environment variables before running:"
+        Write-Host '  $env:AWS_ACCESS_KEY_ID = "your-key"'
+        Write-Host '  $env:AWS_SECRET_ACCESS_KEY = "your-secret"'
+        Write-Host '  $env:AWS_SESSION_TOKEN = "your-token"  (if using temporary creds)'
+        Write-Host '  $env:AWS_DEFAULT_REGION = "us-east-1"'
         exit 1
     }
-    Write-Info "AWS credentials configured"
+    Write-Info "AWS credentials configured (via environment variables)"
 }
 
 function Invoke-Bootstrap {
@@ -135,18 +155,9 @@ function Invoke-Bootstrap {
 
         Write-Host ""
         Write-Step "Next steps:"
-        Write-Host "  1. The backend.hcl is already configured with your account ID."
-        Write-Host "  2. Run: .\deploy.ps1 init"
-        Write-Host "  3. Configure GitHub Secret AWS_ROLE_ARN with the apply_role_arn output."
+        Write-Host "  1. Run: .\deploy.ps1 init"
+        Write-Host "  2. Configure GitHub Secret AWS_ROLE_ARN with the apply_role_arn output."
         Write-Host ""
-        Write-Info "After init, migrate bootstrap state to remote:"
-        Write-Host "     cd terraform\bootstrap"
-        Write-Host "     terraform init -migrate-state ``"
-        Write-Host "       -backend-config=`"bucket=954272306896-us-east-1-terraform-state`" ``"
-        Write-Host "       -backend-config=`"key=bootstrap/terraform.tfstate`" ``"
-        Write-Host "       -backend-config=`"region=$Region`" ``"
-        Write-Host "       -backend-config=`"dynamodb_table=terraform-state-lock`" ``"
-        Write-Host "       -backend-config=`"encrypt=true`""
     }
     finally {
         Pop-Location
@@ -227,10 +238,7 @@ function Invoke-Plan {
 
     Push-Location $TfDir
     try {
-        terraform plan `
-            -var-file="$TfVarsFile" `
-            -var="aws_region=$Region" `
-            -out="$PlanFile"
+        terraform plan -var-file="$TfVarsFile" -var="aws_region=$Region" -out="$PlanFile"
         if ($LASTEXITCODE -ne 0) { Write-Err "Plan failed"; exit 1 }
 
         Write-Host ""
@@ -276,9 +284,7 @@ function Invoke-Destroy {
 
     Push-Location $TfDir
     try {
-        terraform destroy `
-            -var-file="$TfVarsFile" `
-            -var="aws_region=$Region"
+        terraform destroy -var-file="$TfVarsFile" -var="aws_region=$Region"
         if ($LASTEXITCODE -ne 0) { Write-Err "Destroy failed"; exit 1 }
         Write-Info "Destroy complete."
     }

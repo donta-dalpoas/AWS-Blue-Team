@@ -1,0 +1,70 @@
+name: "Drift Detection"
+
+on:
+  schedule:
+    - cron: "0 6 * * *" # Daily at 6 AM UTC
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+  issues: write
+
+env:
+  TF_VERSION: "1.7.0"
+  TF_WORKING_DIR: "aws-ai-blue-team/terraform"
+  AWS_REGION: "us-east-1"
+
+jobs:
+  drift-check:
+    name: "Drift Detection"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN_PLAN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Terraform Init
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: |
+          terraform init \
+            -backend-config="environments/dev/backend.hcl"
+
+      - name: Terraform Plan (Drift Check)
+        id: plan
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: |
+          terraform plan \
+            -var-file="environments/dev/terraform.tfvars" \
+            -detailed-exitcode \
+            -no-color 2>&1 | tee drift_output.txt || true
+          echo "exitcode=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
+
+      - name: Create Issue on Drift
+        if: steps.plan.outputs.exitcode == '2'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const driftOutput = fs.readFileSync('${{ env.TF_WORKING_DIR }}/drift_output.txt', 'utf8');
+            const truncated = driftOutput.length > 60000
+              ? driftOutput.substring(0, 60000) + '\n\n... truncated'
+              : driftOutput;
+
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `[DRIFT] Infrastructure drift detected - ${new Date().toISOString().split('T')[0]}`,
+              body: `## Drift Detected\n\nTerraform plan shows changes that were not made via IaC.\n\n\`\`\`\n${truncated}\n\`\`\`\n\nInvestigate and either:\n1. Import the change into Terraform\n2. Revert the manual change by running \`terraform apply\``,
+              labels: ['drift-detected', 'infrastructure']
+            });
