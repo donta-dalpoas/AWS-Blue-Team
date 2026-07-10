@@ -33,7 +33,8 @@ $ProjectName = "aws-ai-blue-team"
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $TfDir = Join-Path $ScriptDir "terraform"
 $BootstrapDir = Join-Path $TfDir "bootstrap"
-$EnvDir = Join-Path $TfDir "environments" $Environment
+$EnvDir = Join-Path (Join-Path (Join-Path $TfDir "environments") $Environment) ""
+$EnvDir = $EnvDir.TrimEnd("\").TrimEnd("/")
 $PlanFile = Join-Path $TfDir "$Environment.tfplan"
 $BackendConfig = Join-Path $EnvDir "backend.hcl"
 $TfVarsFile = Join-Path $EnvDir "terraform.tfvars"
@@ -49,17 +50,17 @@ function Write-Banner {
     Write-Host ""
 }
 
-function Write-Step  { param([string]$Msg) Write-Host "[STEP] " -ForegroundColor Cyan -NoNewline; Write-Host $Msg }
-function Write-Info  { param([string]$Msg) Write-Host "[INFO] " -ForegroundColor Green -NoNewline; Write-Host $Msg }
-function Write-Warn  { param([string]$Msg) Write-Host "[WARN] " -ForegroundColor Yellow -NoNewline; Write-Host $Msg }
-function Write-Err   { param([string]$Msg) Write-Host "[ERROR] " -ForegroundColor Red -NoNewline; Write-Host $Msg }
+function Write-Step  { param([string]$Msg) Write-Host "STEP: " -ForegroundColor Cyan -NoNewline; Write-Host $Msg }
+function Write-Info  { param([string]$Msg) Write-Host "INFO: " -ForegroundColor Green -NoNewline; Write-Host $Msg }
+function Write-Warn  { param([string]$Msg) Write-Host "WARN: " -ForegroundColor Yellow -NoNewline; Write-Host $Msg }
+function Write-Err   { param([string]$Msg) Write-Host "ERROR: " -ForegroundColor Red -NoNewline; Write-Host $Msg }
 
 function Show-Help {
     Write-Banner
-    Write-Host "Usage: .\deploy.ps1 [-Environment dev|prod] [-Region us-east-1] <Command>"
+    Write-Host 'Usage: .\deploy.ps1 [-Environment dev or prod] [-Region us-east-1] Command'
     Write-Host ""
     Write-Host "Commands:"
-    Write-Host "  bootstrap   One-time: create state backend + CI/CD roles (local state)"
+    Write-Host "  bootstrap   One-time: create state backend and CI/CD roles"
     Write-Host "  init        Initialize Terraform with remote backend"
     Write-Host "  validate    Run fmt check, validate, and tflint"
     Write-Host "  fmt         Auto-format all .tf files"

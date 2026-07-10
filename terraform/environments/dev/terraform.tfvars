@@ -12,8 +12,8 @@ aws_region       = "us-east-1"
 active_regions   = ["us-east-1", "us-west-2"]
 
 # GitHub (for OIDC - already bootstrapped)
-github_org  = "AWS-Blue-Team"
-github_repo = "aws-ai-blue-team"
+github_org  = "donta-dalpoas"
+github_repo = "AWS-Blue-Team"
 
 # Networking
 create_vpc = true
