@@ -1,0 +1,175 @@
+[
+  {
+    "id": "test-001",
+    "description": "GuardDuty high-severity UnauthorizedAccess finding",
+    "source": "aws.guardduty",
+    "detail": {
+      "id": "finding-001",
+      "type": "UnauthorizedAccess:IAMUser/MaliciousIPCaller",
+      "severity": 8.5,
+      "title": "API call from known malicious IP",
+      "description": "An API call was made from a known malicious IP address",
+      "region": "us-east-1",
+      "accountId": "954272306896",
+      "updatedAt": "2024-07-13T10:00:00Z",
+      "resource": {"accessKeyDetails": {"userArn": "arn:aws:iam::954272306896:user/suspicious-user"}},
+      "service": {"action": {"awsApiCallAction": {"remoteIpDetails": {"ipAddressV4": "198.51.100.50"}}}}
+    }
+  },
+  {
+    "id": "test-002",
+    "description": "GuardDuty medium-severity reconnaissance finding",
+    "source": "aws.guardduty",
+    "detail": {
+      "id": "finding-002",
+      "type": "Recon:IAMUser/MaliciousIPCaller",
+      "severity": 5.0,
+      "title": "Reconnaissance from suspicious IP",
+      "description": "API calls indicating reconnaissance activity",
+      "region": "us-east-1",
+      "accountId": "954272306896",
+      "updatedAt": "2024-07-13T10:05:00Z",
+      "resource": {"accessKeyDetails": {"userArn": "arn:aws:iam::954272306896:user/dev-user"}},
+      "service": {"action": {"awsApiCallAction": {"remoteIpDetails": {"ipAddressV4": "203.0.113.10"}}}}
+    }
+  },
+  {
+    "id": "test-003",
+    "description": "GuardDuty low-severity info finding",
+    "source": "aws.guardduty",
+    "detail": {
+      "id": "finding-003",
+      "type": "Behavior:IAMUser/InstanceCredentialExfiltration",
+      "severity": 1.5,
+      "title": "Instance credential used outside EC2",
+      "description": "Instance role credentials used from external IP",
+      "region": "us-east-1",
+      "accountId": "954272306896",
+      "updatedAt": "2024-07-13T10:10:00Z",
+      "resource": {"accessKeyDetails": {"userArn": "arn:aws:iam::954272306896:role/ec2-role"}},
+      "service": {"action": {"awsApiCallAction": {"remoteIpDetails": {"ipAddressV4": "10.0.1.50"}}}}
+    }
+  },
+  {
+    "id": "test-004",
+    "description": "CloudTrail disabled - critical defense evasion",
+    "source": "aws.guardduty",
+    "detail": {
+      "id": "finding-004",
+      "type": "Stealth:IAMUser/CloudTrailLoggingDisabled",
+      "severity": 9.0,
+      "title": "CloudTrail logging was disabled",
+      "description": "CloudTrail trail had logging stopped",
+      "region": "us-east-1",
+      "accountId": "954272306896",
+      "updatedAt": "2024-07-13T10:15:00Z",
+      "resource": {"accessKeyDetails": {"userArn": "arn:aws:iam::954272306896:user/attacker"}},
+      "service": {"action": {"awsApiCallAction": {"remoteIpDetails": {"ipAddressV4": "192.0.2.100"}}}}
+    }
+  },
+  {
+    "id": "test-005",
+    "description": "SecurityHub CRITICAL compliance finding",
+    "source": "aws.securityhub",
+    "detail": {
+      "findings": [{
+        "Id": "finding-005",
+        "Types": ["Software and Configuration Checks/AWS Security Best Practices"],
+        "Severity": {"Label": "CRITICAL", "Normalized": 90},
+        "Title": "S3 bucket has public read access",
+        "Description": "S3 bucket allows public read",
+        "Region": "us-east-1",
+        "AwsAccountId": "954272306896",
+        "UpdatedAt": "2024-07-13T10:20:00Z",
+        "Resources": [{"Id": "arn:aws:s3:::public-bucket-test"}]
+      }]
+    }
+  },
+  {
+    "id": "test-006",
+    "description": "Root account login",
+    "source": "aws.guardduty",
+    "detail": {
+      "id": "finding-006",
+      "type": "Policy:IAMUser/RootCredentialUsage",
+      "severity": 9.5,
+      "title": "Root account credentials were used",
+      "description": "The root account was used to make API calls",
+      "region": "us-east-1",
+      "accountId": "954272306896",
+      "updatedAt": "2024-07-13T10:25:00Z",
+      "resource": {"accessKeyDetails": {"userArn": "arn:aws:iam::954272306896:root"}},
+      "service": {"action": {"awsApiCallAction": {"remoteIpDetails": {"ipAddressV4": "72.21.198.10"}}}}
+    }
+  },
+  {
+    "id": "test-007",
+    "description": "SecurityHub MEDIUM finding",
+    "source": "aws.securityhub",
+    "detail": {
+      "findings": [{
+        "Id": "finding-007",
+        "Types": ["Software and Configuration Checks"],
+        "Severity": {"Label": "MEDIUM", "Normalized": 50},
+        "Title": "Security group allows unrestricted SSH access",
+        "Description": "SG allows 0.0.0.0/0 on port 22",
+        "Region": "us-east-1",
+        "AwsAccountId": "954272306896",
+        "UpdatedAt": "2024-07-13T10:30:00Z",
+        "Resources": [{"Id": "arn:aws:ec2:us-east-1:954272306896:security-group/sg-12345"}]
+      }]
+    }
+  },
+  {
+    "id": "test-008",
+    "description": "Known CI/CD automation (should be SUPPRESSED)",
+    "source": "aws.guardduty",
+    "detail": {
+      "id": "finding-008",
+      "type": "Policy:IAMUser/IAMPolicyChanged",
+      "severity": 4.0,
+      "title": "IAM policy was modified",
+      "description": "An IAM policy was changed by the CI/CD role",
+      "region": "us-east-1",
+      "accountId": "954272306896",
+      "updatedAt": "2024-07-13T10:35:00Z",
+      "resource": {"accessKeyDetails": {"userArn": "arn:aws:iam::954272306896:role/github-actions-terraform-apply"}},
+      "service": {"action": {"awsApiCallAction": {"remoteIpDetails": {"ipAddressV4": "10.0.0.1"}}}}
+    }
+  },
+  {
+    "id": "test-009",
+    "description": "GuardDuty low finding - informational",
+    "source": "aws.guardduty",
+    "detail": {
+      "id": "finding-009",
+      "type": "Recon:EC2/PortProbeUnprotectedPort",
+      "severity": 2.0,
+      "title": "Unprotected port on EC2 instance is being probed",
+      "description": "A port probe was detected on an EC2 instance",
+      "region": "us-east-1",
+      "accountId": "954272306896",
+      "updatedAt": "2024-07-13T10:40:00Z",
+      "resource": {"instanceDetails": {"instanceId": "i-0123456789abcdef0"}},
+      "service": {"action": {"networkConnectionAction": {"remoteIpDetails": {"ipAddressV4": "10.0.2.100"}}}}
+    }
+  },
+  {
+    "id": "test-010",
+    "description": "SecurityHub LOW finding",
+    "source": "aws.securityhub",
+    "detail": {
+      "findings": [{
+        "Id": "finding-010",
+        "Types": ["Software and Configuration Checks"],
+        "Severity": {"Label": "LOW", "Normalized": 20},
+        "Title": "S3 bucket does not have access logging enabled",
+        "Description": "Access logging is not configured",
+        "Region": "us-east-1",
+        "AwsAccountId": "954272306896",
+        "UpdatedAt": "2024-07-13T10:45:00Z",
+        "Resources": [{"Id": "arn:aws:s3:::some-internal-bucket"}]
+      }]
+    }
+  }
+]

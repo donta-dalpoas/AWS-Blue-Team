@@ -150,6 +150,16 @@ resource "aws_iam_role_policy" "soc_analyst" {
         Effect   = "Allow"
         Action   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"]
         Resource = "arn:aws:logs:*:${var.account_id}:*"
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["sqs:SendMessage"]
+        Resource = "arn:aws:sqs:*:${var.account_id}:*-soc-agent-dlq"
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["lambda:InvokeFunction"]
+        Resource = "arn:aws:lambda:*:${var.account_id}:function:agent-*"
       }
     ]
   })

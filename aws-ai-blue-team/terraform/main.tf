@@ -173,3 +173,19 @@ module "agentcore_observability" {
   gateway_lambda_name   = module.agentcore_gateway.lambda_name
   evaluator_lambda_name = module.agentcore_policy.evaluator_lambda_name
 }
+
+# =============================================================================
+# Epic 2: SOC Analyst Agent
+# =============================================================================
+
+module "agent_soc_analyst" {
+  source              = "./modules/agents/soc-analyst"
+  name_prefix         = local.name_prefix
+  sns_topic_arn       = module.sns.findings_topic_arn
+  agent_role_arn      = module.agentcore_identity.agent_role_arns["soc-analyst"]
+  opensearch_endpoint = module.opensearch.endpoint
+  gateway_url         = module.agentcore_gateway.gateway_url
+  s3_bucket_name      = module.storage.bucket_name
+  kms_key_arn         = module.kms.key_arn
+  sns_alert_topic_arn = module.sns.alert_topic_arn
+}

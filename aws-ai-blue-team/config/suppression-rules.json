@@ -1,0 +1,29 @@
+{
+  "version": "1.0",
+  "rules": [
+    {
+      "id": "SUPPRESS-001",
+      "name": "CI/CD Automation Role",
+      "description": "GitHub Actions terraform apply role makes expected IAM and infrastructure changes",
+      "match": {
+        "field": "principal_arn",
+        "operator": "contains",
+        "value": "github-actions-terraform"
+      },
+      "reason": "Known CI/CD automation role",
+      "enabled": true
+    },
+    {
+      "id": "SUPPRESS-002",
+      "name": "Approved Vulnerability Scanner IPs",
+      "description": "Approved vulnerability scanner IPs generate expected scanning traffic",
+      "match": {
+        "field": "source_ip",
+        "operator": "in_cidr",
+        "value": ["167.248.133.0/24", "18.208.0.0/13"]
+      },
+      "reason": "Approved vulnerability scanner IP range",
+      "enabled": true
+    }
+  ]
+}

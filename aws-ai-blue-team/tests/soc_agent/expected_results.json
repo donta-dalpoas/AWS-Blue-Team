@@ -1,0 +1,12 @@
+{
+  "test-001": {"expected_severity": "P1", "reason": "High GD severity (8.5) + external IP + UnauthorizedAccess rule match"},
+  "test-002": {"expected_severity": "P3", "reason": "Medium GD severity (5.0) + Recon rule match"},
+  "test-003": {"expected_severity": "P4", "reason": "Low GD severity (1.5) + internal IP"},
+  "test-004": {"expected_severity": "P1", "reason": "Critical GD severity (9.0) + CloudTrail disabled rule match (weight 40)"},
+  "test-005": {"expected_severity": "P1", "reason": "SecurityHub CRITICAL + S3 public bucket rule match"},
+  "test-006": {"expected_severity": "P1", "reason": "Critical GD severity (9.5) + root account rule match (weight 40)"},
+  "test-007": {"expected_severity": "P3", "reason": "SecurityHub MEDIUM + SG rule match"},
+  "test-008": {"expected_severity": "suppressed", "reason": "Principal matches SUPPRESS-001 (github-actions-terraform)"},
+  "test-009": {"expected_severity": "P4", "reason": "Low GD severity (2.0) + internal IP + no rule match"},
+  "test-010": {"expected_severity": "P4", "reason": "SecurityHub LOW normalized score"}
+}
