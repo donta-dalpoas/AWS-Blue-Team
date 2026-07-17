@@ -252,6 +252,27 @@ resource "aws_iam_role_policy" "incident_responder" {
         Action   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"]
         Resource = "arn:aws:logs:*:${var.account_id}:*"
       },
+      {
+        Sid    = "DLQAndLambda"
+        Effect = "Allow"
+        Action = ["sqs:SendMessage"]
+        Resource = "arn:aws:sqs:*:${var.account_id}:*-ir-agent-dlq"
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["lambda:InvokeFunction"]
+        Resource = "arn:aws:lambda:*:${var.account_id}:function:cedar-policy-evaluator"
+      },
+      {
+        Effect = "Allow"
+        Action = ["dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:UpdateItem"]
+        Resource = "arn:aws:dynamodb:*:${var.account_id}:table/*-pending-approvals"
+      },
+      {
+        Effect = "Allow"
+        Action = ["cloudtrail:GetTrailStatus", "iam:ListAccessKeys", "s3:GetPublicAccessBlock"]
+        Resource = "*"
+      },
       # Explicit denies
       {
         Sid    = "DenyCreation"

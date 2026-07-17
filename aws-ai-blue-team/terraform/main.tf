@@ -189,3 +189,20 @@ module "agent_soc_analyst" {
   kms_key_arn         = module.kms.key_arn
   sns_alert_topic_arn = module.sns.alert_topic_arn
 }
+
+# =============================================================================
+# Epic 3: Incident Responder Agent
+# =============================================================================
+
+module "agent_incident_responder" {
+  source                    = "./modules/agents/incident-responder"
+  name_prefix               = local.name_prefix
+  agent_role_arn            = module.agentcore_identity.agent_role_arns["incident-responder"]
+  s3_bucket_name            = module.storage.bucket_name
+  opensearch_endpoint       = module.opensearch.endpoint
+  cedar_evaluator_arn       = module.agentcore_policy.evaluator_lambda_arn
+  kms_key_arn               = module.kms.key_arn
+  sns_alert_topic_arn       = module.sns.alert_topic_arn
+  api_gateway_id            = module.agentcore_gateway.api_id
+  api_gateway_execution_arn = module.agentcore_gateway.execution_arn
+}
