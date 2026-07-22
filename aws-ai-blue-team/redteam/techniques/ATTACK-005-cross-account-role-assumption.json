@@ -1,0 +1,1 @@
+{"id":"ATTACK-005","name":"Cross-Account Role Assumption","description":"Assume role from unknown external account","mitre_tactic":"lateral-movement","mitre_technique":"T1550.001","aws_action":"sts:AssumeRole","target_resource":"test-role","expected_detection_rule":"DETECT-010","wait_time_seconds":60,"severity_expected":"P2"}

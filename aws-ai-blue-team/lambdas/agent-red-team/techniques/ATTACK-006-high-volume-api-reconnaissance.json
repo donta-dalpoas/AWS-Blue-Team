@@ -1,0 +1,1 @@
+{"id":"ATTACK-006","name":"High Volume API Reconnaissance","description":"Rapid enumeration of IAM and EC2 resources","mitre_tactic":"discovery","mitre_technique":"T1106","aws_action":"iam:ListUsers","target_resource":"test-recon","expected_detection_rule":"DETECT-004","wait_time_seconds":60,"severity_expected":"P3"}

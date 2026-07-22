@@ -1,0 +1,1 @@
+{"id":"ATTACK-007","name":"Access S3 From Unusual Region","description":"GetObject calls from a region never used before","mitre_tactic":"collection","mitre_technique":"T1530","aws_action":"s3:GetObject","target_resource":"test-bucket","expected_detection_rule":"DETECT-002","wait_time_seconds":60,"severity_expected":"P3"}

@@ -206,3 +206,31 @@ module "agent_incident_responder" {
   api_gateway_id            = module.agentcore_gateway.api_id
   api_gateway_execution_arn = module.agentcore_gateway.execution_arn
 }
+
+# =============================================================================
+# Epic 4: Proactive Agents
+# =============================================================================
+
+module "agent_compliance_auditor" {
+  source              = "./modules/agents/compliance-auditor"
+  name_prefix         = local.name_prefix
+  agent_role_arn      = module.agentcore_identity.agent_role_arns["compliance-auditor"]
+  s3_bucket_name      = module.storage.bucket_name
+  opensearch_endpoint = module.opensearch.endpoint
+}
+
+module "agent_threat_hunter" {
+  source              = "./modules/agents/threat-hunter"
+  name_prefix         = local.name_prefix
+  agent_role_arn      = module.agentcore_identity.agent_role_arns["threat-hunter"]
+  s3_bucket_name      = module.storage.bucket_name
+  opensearch_endpoint = module.opensearch.endpoint
+}
+
+module "agent_red_team" {
+  source              = "./modules/agents/red-team"
+  name_prefix         = local.name_prefix
+  agent_role_arn      = module.agentcore_identity.agent_role_arns["red-team"]
+  s3_bucket_name      = module.storage.bucket_name
+  opensearch_endpoint = module.opensearch.endpoint
+}

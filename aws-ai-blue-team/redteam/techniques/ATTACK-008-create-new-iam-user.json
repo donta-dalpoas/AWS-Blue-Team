@@ -1,0 +1,1 @@
+{"id":"ATTACK-008","name":"Create New IAM User","description":"Create unauthorized IAM user for persistence","mitre_tactic":"persistence","mitre_technique":"T1136.001","aws_action":"iam:CreateUser","target_resource":"test-newuser","expected_detection_rule":"DETECT-007","wait_time_seconds":60,"severity_expected":"P2"}

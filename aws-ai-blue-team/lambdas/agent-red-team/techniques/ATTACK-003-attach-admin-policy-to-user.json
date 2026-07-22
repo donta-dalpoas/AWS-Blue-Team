@@ -1,0 +1,1 @@
+{"id":"ATTACK-003","name":"Attach Admin Policy to User","description":"Attach AdministratorAccess to escalate privileges","mitre_tactic":"privilege-escalation","mitre_technique":"T1098.001","aws_action":"iam:AttachUserPolicy","target_resource":"test-user","expected_detection_rule":"DETECT-001","wait_time_seconds":60,"severity_expected":"P1"}

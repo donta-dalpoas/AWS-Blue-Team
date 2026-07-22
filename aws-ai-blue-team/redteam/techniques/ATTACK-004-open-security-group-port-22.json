@@ -1,0 +1,1 @@
+{"id":"ATTACK-004","name":"Open Security Group Port 22","description":"Allow SSH from anywhere (0.0.0.0/0)","mitre_tactic":"defense-evasion","mitre_technique":"T1562.007","aws_action":"ec2:AuthorizeSecurityGroupIngress","target_resource":"test-sg","expected_detection_rule":"DETECT-008","wait_time_seconds":60,"severity_expected":"P2"}

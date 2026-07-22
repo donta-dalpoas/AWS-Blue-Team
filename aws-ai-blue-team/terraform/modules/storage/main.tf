@@ -172,18 +172,25 @@ resource "aws_s3_bucket_policy" "security_logs" {
         Action   = "s3:GetBucketLocation"
         Resource = aws_s3_bucket.security_logs.arn
       },
-      # Deny unencrypted uploads
+      # Allow account principals (Athena, Lambda, agents) full access
       {
-        Sid       = "DenyUnencryptedObjectUploads"
-        Effect    = "Deny"
-        Principal = "*"
-        Action    = "s3:PutObject"
-        Resource  = "${aws_s3_bucket.security_logs.arn}/*"
-        Condition = {
-          StringNotEquals = {
-            "s3:x-amz-server-side-encryption" = ["aws:kms", "AES256"]
-          }
+        Sid    = "AllowAccountAccess"
+        Effect = "Allow"
+        Principal = {
+          AWS = "arn:aws:iam::${var.account_id}:root"
         }
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:ListBucket",
+          "s3:GetBucketLocation",
+          "s3:AbortMultipartUpload",
+          "s3:ListMultipartUploadParts"
+        ]
+        Resource = [
+          aws_s3_bucket.security_logs.arn,
+          "${aws_s3_bucket.security_logs.arn}/*"
+        ]
       },
       # Deny insecure transport
       {

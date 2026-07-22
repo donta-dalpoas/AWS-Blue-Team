@@ -1,0 +1,1 @@
+{"id":"ATTACK-001","name":"Disable CloudTrail Logging","description":"Stop logging on a CloudTrail trail to create audit gap","mitre_tactic":"defense-evasion","mitre_technique":"T1562.008","aws_action":"cloudtrail:StopLogging","target_resource":"test-trail","expected_detection_rule":"DETECT-009","wait_time_seconds":60,"severity_expected":"P1"}

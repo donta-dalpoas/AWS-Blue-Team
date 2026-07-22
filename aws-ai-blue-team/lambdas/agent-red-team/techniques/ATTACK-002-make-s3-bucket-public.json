@@ -1,0 +1,1 @@
+{"id":"ATTACK-002","name":"Make S3 Bucket Public","description":"Set public bucket policy to expose data","mitre_tactic":"exfiltration","mitre_technique":"T1537","aws_action":"s3:PutBucketPolicy","target_resource":"test-bucket","expected_detection_rule":"DETECT-002","wait_time_seconds":60,"severity_expected":"P1"}

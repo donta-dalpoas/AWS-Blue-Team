@@ -1,0 +1,1 @@
+{"id":"ATTACK-010","name":"Modify Bucket Encryption","description":"Remove default encryption from S3 bucket","mitre_tactic":"impact","mitre_technique":"T1485","aws_action":"s3:DeleteBucketEncryption","target_resource":"test-bucket","expected_detection_rule":"DETECT-002","wait_time_seconds":60,"severity_expected":"P3"}
