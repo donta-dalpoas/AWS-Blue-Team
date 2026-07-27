@@ -45,6 +45,8 @@ resource "aws_lambda_function" "incident_responder" {
       PENDING_APPROVALS_TABLE = aws_dynamodb_table.pending_approvals.name
       SLACK_WEBHOOK_URL       = var.slack_webhook_url
       GITHUB_REPO             = var.github_repo
+      AI_MODEL_ID             = "anthropic.claude-3-haiku-20240307-v1:0"
+      AI_ENABLED              = "true"
       ENVIRONMENT             = "dev"
     }
   }

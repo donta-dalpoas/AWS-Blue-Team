@@ -27,6 +27,8 @@ resource "aws_lambda_function" "compliance_auditor" {
       S3_BUCKET_NAME      = var.s3_bucket_name
       OPENSEARCH_ENDPOINT = var.opensearch_endpoint
       SLACK_WEBHOOK_URL   = var.slack_webhook_url
+      AI_MODEL_ID         = "anthropic.claude-3-haiku-20240307-v1:0"
+      AI_ENABLED          = "true"
       ENVIRONMENT         = "dev"
     }
   }

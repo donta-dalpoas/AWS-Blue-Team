@@ -37,6 +37,8 @@ resource "aws_lambda_function" "soc_analyst" {
       BASELINE_BUCKET       = var.s3_bucket_name
       BASELINE_KEY          = "baselines/latest/baseline.json"
       SNS_ALERT_TOPIC_ARN   = var.sns_alert_topic_arn
+      AI_MODEL_ID           = "anthropic.claude-3-haiku-20240307-v1:0"
+      AI_ENABLED            = "true"
       ENVIRONMENT           = "dev"
     }
   }

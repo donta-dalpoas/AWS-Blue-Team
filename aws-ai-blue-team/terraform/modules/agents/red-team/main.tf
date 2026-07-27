@@ -28,6 +28,8 @@ resource "aws_lambda_function" "red_team" {
       OPENSEARCH_ENDPOINT      = var.opensearch_endpoint
       SLACK_WEBHOOK_URL        = var.slack_webhook_url
       DETECTION_WAIT_SECONDS   = "60"
+      AI_MODEL_ID              = "anthropic.claude-3-haiku-20240307-v1:0"
+      AI_ENABLED               = "true"
       ENVIRONMENT              = "dev"
     }
   }

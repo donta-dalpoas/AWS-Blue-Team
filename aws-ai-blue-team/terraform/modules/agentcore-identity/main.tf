@@ -509,3 +509,51 @@ resource "aws_iam_role_policy" "red_team" {
     ]
   })
 }
+
+# -----------------------------------------------------------------------------
+# Bedrock AI Access (shared across all agent roles)
+# -----------------------------------------------------------------------------
+resource "aws_iam_policy" "agent_bedrock_access" {
+  name = "${var.name_prefix}-agent-bedrock-access"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "bedrock:InvokeModel",
+          "bedrock:InvokeModelWithResponseStream"
+        ]
+        Resource = "arn:aws:bedrock:*::foundation-model/*"
+      }
+    ]
+  })
+
+  tags = { Name = "${var.name_prefix}-agent-bedrock-access" }
+}
+
+resource "aws_iam_role_policy_attachment" "soc_analyst_bedrock" {
+  role       = aws_iam_role.soc_analyst.name
+  policy_arn = aws_iam_policy.agent_bedrock_access.arn
+}
+
+resource "aws_iam_role_policy_attachment" "incident_responder_bedrock" {
+  role       = aws_iam_role.incident_responder.name
+  policy_arn = aws_iam_policy.agent_bedrock_access.arn
+}
+
+resource "aws_iam_role_policy_attachment" "threat_hunter_bedrock" {
+  role       = aws_iam_role.threat_hunter.name
+  policy_arn = aws_iam_policy.agent_bedrock_access.arn
+}
+
+resource "aws_iam_role_policy_attachment" "compliance_auditor_bedrock" {
+  role       = aws_iam_role.compliance_auditor.name
+  policy_arn = aws_iam_policy.agent_bedrock_access.arn
+}
+
+resource "aws_iam_role_policy_attachment" "red_team_bedrock" {
+  role       = aws_iam_role.red_team.name
+  policy_arn = aws_iam_policy.agent_bedrock_access.arn
+}

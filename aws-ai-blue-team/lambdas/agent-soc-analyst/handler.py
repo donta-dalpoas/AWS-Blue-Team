@@ -12,6 +12,7 @@ from config import Config
 from suppression import check_suppression
 from enrichment import enrich_finding
 from classification import classify_finding
+from ai_classification import classify_with_ai
 from routing import route_finding
 from detection_rules import load_detection_rules, match_rules
 
@@ -79,10 +80,13 @@ def process_record(record, start_time):
     # Step 3: Match detection rules
     matched_rules = match_rules(finding_meta, detection_rules)
 
-    # Step 4: Classify severity
-    classification = classify_finding(finding_meta, enrichment_context, matched_rules)
+    # Step 4: Deterministic classification (used as baseline/fallback)
+    deterministic_result = classify_finding(finding_meta, enrichment_context, matched_rules)
 
-    # Step 5: Route based on severity
+    # Step 5: AI-powered classification (uses Claude for reasoning)
+    classification = classify_with_ai(finding_meta, enrichment_context, matched_rules, deterministic_result)
+
+    # Step 6: Route based on severity
     route_finding(finding_meta, enrichment_context, classification)
 
     # Step 6: Log decision to OpenSearch
