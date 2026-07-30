@@ -1,0 +1,54 @@
+# Executive Summary Agent Configuration
+name: Executive Summary Agent
+description: >
+  Weekly executive briefing agent that generates plain-English security summaries
+  for non-technical leadership. Queries all agent metrics from OpenSearch,
+  computes week-over-week trends, and posts to Microsoft Teams and GitHub.
+
+lambda_function: agent-executive-summary
+runtime: python3.11
+memory_mb: 512
+architecture: arm64
+timeout_seconds: 600
+
+trigger:
+  type: EventBridge Schedule
+  schedule: "cron(0 8 ? * MON *)"
+
+session_type: stateless
+
+tools:
+  - QueryOpenSearch
+  - GenerateMarkdown
+  - PostTeams
+  - CommitToGitHub
+  - ComputeTrends
+
+cedar_policy:
+  file: policies/cedar/executive-summary.cedar
+  scope: Analytics::metrics
+  allowed_actions:
+    - QueryOpenSearch
+    - ReadMetrics
+    - GenerateReport
+    - PostTeams
+    - CommitReport
+  denied_actions:
+    - ModifyResource
+    - RemediateResource
+    - ModifyIAM
+    - ReadSecrets
+
+output:
+  teams_channel: "Executive Briefing"
+  fallback_channel: "SOC Alerts"
+  repo_path: "docs/weekly-reports/"
+  commit_author: "executive-summary-agent[bot]"
+
+environment_variables:
+  OPENSEARCH_ENDPOINT: "${opensearch_endpoint}"
+  TEAMS_WEBHOOK_URL: "${teams_executive_webhook}"
+  TEAMS_FALLBACK_WEBHOOK_URL: "${teams_soc_webhook}"
+  GITHUB_TOKEN: "${github_token}"
+  GITHUB_REPO: "donta-dalpoas/AWS-Blue-Team"
+  LOG_LEVEL: "INFO"

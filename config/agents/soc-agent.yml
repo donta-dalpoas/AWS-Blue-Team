@@ -1,0 +1,48 @@
+# SOC Agent Configuration
+name: SOC Agent
+description: >
+  Automated Security Operations Center agent that triages security findings,
+  classifies severity, enriches with context, and routes to appropriate responders.
+  Operates 24/7 with sub-minute response times.
+
+lambda_function: agent-soc-triage
+runtime: python3.11
+memory_mb: 512
+architecture: arm64
+timeout_seconds: 300
+
+trigger:
+  type: SNS
+  source: security-findings-topic
+
+session_type: stateless
+
+tools:
+  - QueryOpenSearch
+  - EnrichIP
+  - EnrichIdentity
+  - ClassifyFinding
+  - PostTeams
+  - CreateIncident
+  - LookupBaseline
+
+cedar_policy:
+  file: policies/cedar/soc-agent.cedar
+  scope: SecurityFindings::all
+  allowed_actions:
+    - ReadFinding
+    - ClassifyFinding
+    - EnrichFinding
+    - RouteFinding
+    - QueryOpenSearch
+    - PostTeams
+  denied_actions:
+    - RemediateResource
+    - ModifyIAM
+    - DeleteResource
+
+environment_variables:
+  OPENSEARCH_ENDPOINT: "${opensearch_endpoint}"
+  TEAMS_WEBHOOK_URL: "${teams_soc_webhook}"
+  FINDINGS_INDEX: "security-findings-*"
+  LOG_LEVEL: "INFO"

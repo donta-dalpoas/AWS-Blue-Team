@@ -1,0 +1,48 @@
+# Compliance Auditor Agent Configuration
+name: Compliance Auditor
+description: >
+  Automated compliance scanning agent that continuously audits AWS resource
+  configurations against security baselines. Generates compliance scorecards
+  and identifies drift from approved configurations.
+
+lambda_function: agent-compliance-auditor
+runtime: python3.11
+memory_mb: 512
+architecture: arm64
+timeout_seconds: 600
+
+trigger:
+  type: EventBridge Schedule
+  schedule: "rate(6 hours)"
+
+session_type: stateless
+
+tools:
+  - QueryAWSConfig
+  - ReadBaseline
+  - CompareConfig
+  - GenerateScorecard
+  - QueryOpenSearch
+  - PostTeams
+  - CommitReport
+
+cedar_policy:
+  file: policies/cedar/compliance-auditor.cedar
+  scope: AWSResources::all
+  allowed_actions:
+    - ReadConfig
+    - QueryCompliance
+    - GenerateReport
+    - ReadBaseline
+    - QueryOpenSearch
+  denied_actions:
+    - ModifyResource
+    - RemediateResource
+    - ModifyIAM
+    - DeleteResource
+
+environment_variables:
+  OPENSEARCH_ENDPOINT: "${opensearch_endpoint}"
+  TEAMS_WEBHOOK_URL: "${teams_compliance_webhook}"
+  BASELINE_S3_PATH: "s3://security-logs/baselines/"
+  LOG_LEVEL: "INFO"

@@ -1,0 +1,66 @@
+# Incident Responder Agent Configuration
+name: Incident Responder
+description: >
+  Automated incident response agent that performs containment and remediation
+  actions. P1/P2 incidents require human approval via Microsoft Teams before action.
+  P3/P4 incidents are auto-remediated with notification.
+
+lambda_function: agent-incident-responder
+runtime: python3.11
+memory_mb: 1024
+architecture: arm64
+timeout_seconds: 600
+
+trigger:
+  type: SNS
+  source: incident-escalation-topic
+
+session_type: stateful
+
+tools:
+  - IsolateInstance
+  - RevokeAccessKey
+  - BlockIPAddress
+  - RevertBucketPolicy
+  - RevertSecurityGroup
+  - QueryOpenSearch
+  - RequestTeamsApproval
+  - PostTeams
+  - QueryCloudTrail
+
+cedar_policy:
+  file: policies/cedar/incident-responder.cedar
+  scope: AWSResources::managed
+  allowed_actions:
+    - IsolateResource
+    - RevokeCredentials
+    - BlockIP
+    - QuarantineInstance
+    - RevertConfig
+  denied_actions:
+    - DeleteResource
+    - ModifyIAMPolicy
+    - CreateUser
+    - DisableCloudTrail
+
+approval_gates:
+  P1:
+    required: true
+    channel: "SOC Alerts"
+    timeout_minutes: 15
+  P2:
+    required: true
+    channel: "SOC Alerts"
+    timeout_minutes: 30
+  P3:
+    required: false
+    notify_channel: "SOC Alerts"
+  P4:
+    required: false
+    notify_channel: "Security Low Priority"
+
+environment_variables:
+  OPENSEARCH_ENDPOINT: "${opensearch_endpoint}"
+  TEAMS_WEBHOOK_URL: "${teams_soc_webhook}"
+  APPROVAL_TIMEOUT_SECONDS: "900"
+  LOG_LEVEL: "INFO"
