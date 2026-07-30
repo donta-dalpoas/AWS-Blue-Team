@@ -170,3 +170,19 @@ locals {
 #   gateway_lambda_name = module.agentcore_gateway.lambda_name
 #   evaluator_lambda_name = module.agentcore_policy.evaluator_lambda_name
 # }
+
+# =============================================================================
+# Epic 5: Documentation & Handover - Executive Summary Agent
+# =============================================================================
+
+# module "executive_summary" {
+#   source                = "./modules/executive-summary"
+#   name_prefix           = local.name_prefix
+#   account_id            = local.account_id
+#   aws_region            = var.aws_region
+#   opensearch_endpoint   = module.opensearch.endpoint
+#   opensearch_domain_arn = module.opensearch.domain_arn
+#   github_token          = var.github_token
+#   github_repo           = "${var.github_org}/${var.github_repo}"
+#   sns_alert_topic_arn   = module.sns.alert_topic_arn
+# }

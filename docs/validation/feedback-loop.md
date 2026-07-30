@@ -26,7 +26,7 @@ Red Team Agent (Sunday 02:00 UTC)
     4. If detected: record MTTD (Mean Time to Detect)
     5. If NOT detected: generate gap-filling detection rule
   - Writes new rules to: s3://{bucket}/detections/auto-generated/
-  - Posts coverage report to Slack
+  - Posts coverage report to Microsoft Teams
 
 ## Attack Technique Library
 

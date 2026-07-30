@@ -1,0 +1,63 @@
+# =============================================================================
+# Auto-Documentation CI Pipeline
+# Epic 5 - Subissue 1: Regenerates 4 living documents on every merge to main
+# =============================================================================
+name: docs-regen
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  DOCS_BOT_NAME: "docs-bot[bot]"
+  DOCS_BOT_EMAIL: "docs-bot[bot]@users.noreply.github.com"
+
+jobs:
+  regenerate-docs:
+    name: Regenerate Living Documents
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.DOCS_BOT_TOKEN }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install pyyaml
+
+      - name: Generate Detection Matrix
+        run: python scripts/generate-detection-matrix.py
+
+      - name: Generate Architecture Inventory
+        run: python scripts/generate-architecture-inventory.py
+
+      - name: Generate Agent Capabilities
+        run: python scripts/generate-agent-capabilities.py
+
+      - name: Generate Cedar Policy Summary
+        run: python scripts/generate-cedar-policy-summary.py
+
+      - name: Check for changes
+        id: changes
+        run: |
+          git diff --quiet docs/ && echo "changed=false" >> $GITHUB_OUTPUT || echo "changed=true" >> $GITHUB_OUTPUT
+
+      - name: Commit updated docs
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config user.name "${{ env.DOCS_BOT_NAME }}"
+          git config user.email "${{ env.DOCS_BOT_EMAIL }}"
+          git add docs/detection-matrix.md docs/architecture-inventory.md docs/agent-capabilities.md docs/cedar-policy-summary.md
+          git commit -m "docs: auto-regenerate living documents [skip ci]"
+          git push

@@ -1,0 +1,48 @@
+# Threat Hunter Agent Configuration
+name: Threat Hunter
+description: >
+  Proactive threat hunting agent that generates hypotheses based on current
+  threat intelligence and hunts for undiscovered threats in historical logs.
+  Can generate new detection rules for review and deployment.
+
+lambda_function: agent-threat-hunter
+runtime: python3.11
+memory_mb: 1024
+architecture: arm64
+timeout_seconds: 900
+
+trigger:
+  type: EventBridge Schedule
+  schedule: "rate(12 hours)"
+
+session_type: stateful
+
+tools:
+  - QueryOpenSearch
+  - QueryAthena
+  - ReadThreatIntel
+  - GenerateHypothesis
+  - CreateDetectionRule
+  - PostTeams
+  - CommitDetection
+
+cedar_policy:
+  file: policies/cedar/threat-hunter.cedar
+  scope: SecurityFindings::all
+  allowed_actions:
+    - QueryLogs
+    - QueryOpenSearch
+    - ReadThreatIntel
+    - CreateDetectionRule
+    - GenerateHypothesis
+  denied_actions:
+    - RemediateResource
+    - ModifyIAM
+    - ModifySecurityGroup
+    - BlockIP
+
+environment_variables:
+  OPENSEARCH_ENDPOINT: "${opensearch_endpoint}"
+  TEAMS_WEBHOOK_URL: "${teams_hunter_webhook}"
+  THREAT_INTEL_FEEDS: "otx,abuse.ch,emergingthreats"
+  LOG_LEVEL: "INFO"
