@@ -234,3 +234,18 @@ module "agent_red_team" {
   s3_bucket_name      = module.storage.bucket_name
   opensearch_endpoint = module.opensearch.endpoint
 }
+
+# =============================================================================
+# Epic 5: Executive Summary Agent
+# =============================================================================
+
+module "executive_summary" {
+  source                = "./modules/executive-summary"
+  name_prefix           = local.name_prefix
+  account_id            = local.account_id
+  aws_region            = var.aws_region
+  opensearch_endpoint   = module.opensearch.endpoint
+  opensearch_domain_arn = module.opensearch.domain_arn
+  github_token          = var.github_token
+  sns_alert_topic_arn   = module.sns.alert_topic_arn
+}

@@ -59,6 +59,13 @@ variable "github_repo" {
   default     = "aws-ai-blue-team"
 }
 
+variable "github_token" {
+  description = "GitHub API token for executive summary agent (optional)"
+  type        = string
+  sensitive   = true
+  default     = "PLACEHOLDER_TOKEN_UPDATE_AFTER_DEPLOYMENT"
+}
+
 # -----------------------------------------------------------------------------
 # Networking
 # -----------------------------------------------------------------------------
